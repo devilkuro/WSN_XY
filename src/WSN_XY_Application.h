@@ -29,6 +29,9 @@ public:
 		, dstAddr()
 		, debug(false), stats(false), trace(false)
 		, isTransmitting(false)
+        ,alpha(0),beta0(0),beta1(0),beta2(0),beta3(0)
+        ,radius(0),dist(0)
+        ,initialEnergy(0)
         ,i(0),j(0),u(0),v(0),N(0)
         ,relayNodeSize(0)
         ,relayNodeEnergy(NULL)
@@ -77,6 +80,13 @@ private:
     void sendSensorData(cMessage* msg);
     void transimitSensorData(cMessage* msg);
 private:
+    //experimental parameters
+    double alpha;
+    double beta0,beta1,beta2,beta3;
+    double radius;
+    double dist;
+    double initialEnergy;
+    double deadEnergy;
     //private members
     int i,j,u,v,N;
     int relayNodeSize;

@@ -16,7 +16,8 @@ GlobalStatics WSN_XY_Application::globalStatics = GlobalStatics();
 
 static int getHexagonLevel(int id);
 static int getHexagonIndex(int id);
-static int getRelayNodeSize(int i,int N, double w);
+static int getRelayNodeSize(int i,int v,int N, double w);
+static int getNextHop(int i,int j,int u,int v);
 
 WSN_XY_Application::~WSN_XY_Application() {
     // TODO Auto-generated method stub
@@ -35,6 +36,11 @@ void WSN_XY_Application::initialize(int stage) {
         recordId++;
     }else if(stage == 1){
         N=getHexagonLevel(nodeId);
+        relayNodeSize = getRelayNodeSize(i,v,N,1.0);
+        relayNodeEnergy = new double[relayNodeSize];
+        for(int i = 0;i<relayNodeSize;i++){
+            relayNodeEnergy[i] = 50;
+        }
     }
 }
 
@@ -56,7 +62,7 @@ void WSN_XY_Application::handleLowerMsg(cMessage* msg) {
     switch (msg->getKind())
     {
         case WSN_XY_PACKET:
-            sendSensorData(msg);
+            transimitSensorData(msg);
             break;
         default:
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
@@ -105,6 +111,16 @@ inline int getHexagonIndex(int id) {
     }
 }
 
-inline int getRelayNodeSize(int i, int N, double w) {
-    return 3*(N-i+1)*(N-i)*w;
+inline int getRelayNodeSize(int i,int v, int N, double w) {
+    if(v==0)
+        return 3*(N-i+1)*(N-i)*w;
+    else
+        return (N-i)*w;
+}
+
+inline int getNextHop(int i, int j, int u, int v) {
+    if(v!=0&&rand()>0.5){
+        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-1)+1;
+    }else
+        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-0)+1;
 }
