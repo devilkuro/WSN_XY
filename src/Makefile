@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for WSN_XY
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep -I../../MiXiM/src/base/modules -I../../MiXiM/src/inet_stub/networklayer/common -I../../MiXiM/src -I../../MiXiM/src/base/utils -I../../MiXiM/src/base -I../../MiXiM/src/inet_stub/mobility/models -I../../MiXiM/src/base/phyLayer -I../../MiXiM/src/inet_stub/mobility -I../../MiXiM/src/inet_stub/util -I../../MiXiM/src/inet_stub/linklayer/contract -I../../MiXiM/src/base/connectionManager -I../../MiXiM/src/inet_stub/base -I../../MiXiM/src/base/messages -L../../MiXiM/out/$$\(CONFIGNAME\)/src -lmixim -KMIXIM_PROJ=../../MiXiM
+#  opp_makemake -f --deep -I../../MiXiM/src/base/modules -I../../MiXiM/src/inet_stub/networklayer/common -I../../MiXiM/src -I../../MiXiM/src/base/utils -I../../MiXiM/src/base -I../../MiXiM/src/inet_stub/mobility/models -I../../MiXiM/src/base/phyLayer -I../../MiXiM/src/inet_stub/mobility -I../../MiXiM/src/inet_stub/util -I../../MiXiM/src/inet_stub/linklayer/contract -I../../MiXiM/src/base/connectionManager -I../../MiXiM/src/inet_stub/base -I../../MiXiM/src/base/messages -L../../MiXiM/out/$(CONFIGNAME)/src -lmixim -KMIXIM_PROJ=../../MiXiM
 #
 
 # Name of target to be created (-o option)
@@ -113,7 +113,7 @@ $O/$(TARGET): $(OBJS)  $(wildcard $(EXTRA_OBJS)) Makefile
 $O/%.o: %.cc $(COPTS_FILE)
 	@$(MKPATH) $(dir $@)
 	$(qecho) "$<"
-	$(Q)$(CXX) -c $(CXXFLAGS) $(COPTS) -o $@ $<
+	$(Q)$(CXX) -c $(COPTS) -o $@ $<
 
 %_m.cc %_m.h: %.msg
 	$(qecho) MSGC: $<
