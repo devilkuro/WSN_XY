@@ -35,6 +35,7 @@ public:
         ,i(0),j(0),u(0),v(0),N(0)
         ,relayNodeSize(0)
         ,relayNodeEnergy(NULL)
+        ,sensorTimer(NULL)
 	{}
 
     virtual ~WSN_XY_Application();
@@ -49,6 +50,7 @@ public:
         /** @brief Schedules sending of a new message.*/
         SEND_PACKET_TIMER = LAST_BASE_APPL_MESSAGE_KIND,
         /** @brief The kind for a packet send by this layer.*/
+        WSN_XY_SENSOR_TIMER,
         WSN_XY_PACKET,
         /** @brief Sub classing layers shoudl begin their own kinds at this value.*/
         LAST_WSN_XY_MESSAGE_KIND
@@ -91,6 +93,7 @@ private:
     int i,j,u,v,N;
     int relayNodeSize;
     double *relayNodeEnergy;
+    cMessage *sensorTimer;
     //static id
     static int nodeId;
     static int recordId;

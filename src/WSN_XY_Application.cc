@@ -34,6 +34,8 @@ void WSN_XY_Application::initialize(int stage) {
         u=j/i;
         nodeId++;
         recordId++;
+        sensorTimer = new cMessage("sensor timer",WSN_XY_SENSOR_TIMER);
+        nodeAddr = LAddress::L3Type(nodeId);
     }else if(stage == 1){
         N=getHexagonLevel(nodeId);
         relayNodeSize = getRelayNodeSize(i,v,N,1.0);
@@ -48,7 +50,7 @@ void WSN_XY_Application::handleSelfMsg(cMessage* msg) {
     // TODO Auto-generated method stub
     switch (msg->getKind())
     {
-        case SEND_PACKET_TIMER:
+        case WSN_XY_SENSOR_TIMER:
             sendSensorData(msg);
             break;
         default:
