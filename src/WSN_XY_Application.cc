@@ -28,6 +28,7 @@ void WSN_XY_Application::initialize(int stage) {
     BaseApplLayer::initialize(stage);
     if (stage == 0)
     {
+
         i=getHexagonLevel(nodeId);
         j=getHexagonIndex(nodeId);
         v=j%i;
@@ -41,7 +42,7 @@ void WSN_XY_Application::initialize(int stage) {
         relayNodeSize = getRelayNodeSize(i,v,N,1.0);
         relayNodeEnergy = new double[relayNodeSize];
         for(int i = 0;i<relayNodeSize;i++){
-            relayNodeEnergy[i] = 50;
+            relayNodeEnergy[i] = initialEnergy;
         }
     }
 }

@@ -31,7 +31,7 @@ public:
 		, isTransmitting(false)
         ,alpha(0),beta0(0),beta1(0),beta2(0),beta3(0)
         ,radius(0),dist(0)
-        ,initialEnergy(0)
+        ,initialEnergy(0),deadEnergy(0)
         ,i(0),j(0),u(0),v(0),N(0)
         ,relayNodeSize(0)
         ,relayNodeEnergy(NULL)
@@ -54,6 +54,11 @@ public:
         WSN_XY_PACKET,
         /** @brief Sub classing layers shoudl begin their own kinds at this value.*/
         LAST_WSN_XY_MESSAGE_KIND
+    };
+    enum WSN_XY_EN_TYPE {
+        SENSOR_ENERGY,
+        TRANSMIT_ENERGY,
+        OTHER
     };
 
 protected:
@@ -81,6 +86,7 @@ private:
     //private functions
     void sendSensorData(cMessage* msg);
     void transimitSensorData(cMessage* msg);
+    void consumeEnergy(WSN_XY_EN_TYPE type);
 private:
     //experimental parameters
     double alpha;
