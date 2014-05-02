@@ -42,7 +42,7 @@ void WSN_XY_Application::initialize(int stage) {
         relayNodeSize = getRelayNodeSize(i,v,N,1.0);
         relayNodeEnergy = new double[relayNodeSize];
         for(int i = 0;i<relayNodeSize;i++){
-            relayNodeEnergy[i] = initialEnergy;
+            relayNodeEnergy[i] = initialRelayEnergy;
         }
     }
 }

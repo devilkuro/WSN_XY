@@ -31,7 +31,7 @@ public:
 		, isTransmitting(false)
         ,alpha(0),beta0(0),beta1(0),beta2(0),beta3(0)
         ,radius(0),dist(0)
-        ,initialEnergy(0),deadEnergy(0)
+        ,initialRelayEnergy(0),deadRelayEnergy(0)
         ,i(0),j(0),u(0),v(0),N(0)
         ,relayNodeSize(0)
         ,relayNodeEnergy(NULL)
@@ -86,24 +86,30 @@ private:
     //private functions
     void sendSensorData(cMessage* msg);
     void transimitSensorData(cMessage* msg);
-    void consumeEnergy(WSN_XY_EN_TYPE type);
+    void consumeSensorEnergy();
+    void consumeTransmitEnergy(double distance);
 private:
     //experimental parameters
     double alpha;
     double beta0,beta1,beta2,beta3;
     double radius;
     double dist;
-    double initialEnergy;
-    double deadEnergy;
+
+    double initialRelayEnergy; // initial energy of the relay node
+    double deadRelayEnergy; // death threshold of the relay node
+    double initialSensorEnergy; // initial energy of the sensor node
+    double deadSensorEnergy; // death threshold of the sensor node
     //private members
-    int i,j,u,v,N;
-    int relayNodeSize;
-    double *relayNodeEnergy;
-    cMessage *sensorTimer;
+    int i,j,u,v,N; //level,id in level,section,offset,total level.
+    int relayNodeSize; //number of the relay nodes
+    double *relayNodeEnergy; // energy array of the relay nodes
+    int activatedRelayNode; // the index number of current relay node
+    cMessage *sensorTimer; // sensor timer msg
+
     //static id
-    static int nodeId;
-    static int recordId;
-    static GlobalStatics globalStatics;
+    static int nodeId; // node id
+    static int recordId; // record id
+    static GlobalStatics globalStatics; // the statics class
 };
 
 #endif // WSN_XY_APPLICATION_H
