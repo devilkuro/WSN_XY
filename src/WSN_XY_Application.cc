@@ -54,6 +54,8 @@ void WSN_XY_Application::handleSelfMsg(cMessage* msg) {
         case WSN_XY_SENSOR_TIMER:
             sendSensorData(msg);
             break;
+        case WSN_XY_TERMINATE_MSG:
+            endSimulation();
         default:
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
             break;
@@ -71,6 +73,7 @@ void WSN_XY_Application::handleLowerMsg(cMessage* msg) {
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
             break;
     }
+
 }
 
 void WSN_XY_Application::handleLowerControl(cMessage* msg) {
@@ -89,12 +92,55 @@ void WSN_XY_Application::finish() {
 
 void WSN_XY_Application::sendSensorData(cMessage* msg) {
     // TODO Auto-generated method stub
+    if(nodeId!=0&&consumeSensorEnergy()){
+        WSN_XY_ApplPkt *pkt = new WSN_XY_ApplPkt("sensor energy", WSN_XY_PACKET);
+        LAddress::L3Type dstAddr = LAddress::L3Type(getNextHop(i,j,u,v));
+        pkt->setI(i);
+        pkt->setJ(j);
+        pkt->setU(u);
+        pkt->setV(v);
+        pkt->setSrcAddr(nodeAddr);
+        pkt->setDestAddr(dstAddr);
+        sendDown(pkt);
+    }
 }
 
 void WSN_XY_Application::transimitSensorData(cMessage* msg) {
     // TODO Auto-generated method stub
     WSN_XY_ApplPkt* pkt;
     pkt = static_cast<WSN_XY_ApplPkt *>(msg);
+    if(nodeId!=0&&consumeTransmitEnergy(0,0)){
+        WSN_XY_ApplPkt* pktdup = pkt->dup();
+        LAddress::L3Type dstAddr = LAddress::L3Type(getNextHop(i,j,u,v));
+        pktdup->setSrcAddr(nodeAddr);
+        pktdup->setDestAddr(dstAddr);
+        sendDown(pktdup);
+    }
+}
+
+bool WSN_XY_Application::consumeSensorEnergy() {
+    if(sensorNodeEnergy -=1.1725/10000>=0)
+        return true;
+    else{
+        scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg", WSN_XY_TERMINATE_MSG));
+        return false;
+    }
+}
+
+bool WSN_XY_Application::consumeTransmitEnergy(double distance , int bits) {
+    double consumedEnergy = 1.9225/10000;
+    if(relayNodeEnergy[activatedRelayNode]>consumedEnergy){
+        relayNodeEnergy[activatedRelayNode]-=consumedEnergy;
+    }else{
+        activatedRelayNode++;
+        if(activatedRelayNode<relayNodeSize){
+            relayNodeEnergy[activatedRelayNode]-=consumedEnergy;
+        }else{
+            scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg", WSN_XY_TERMINATE_MSG));
+            return false;
+        }
+    }
+    return true;
 }
 
 inline int getHexagonLevel(int id) {
@@ -127,3 +173,5 @@ inline int getNextHop(int i, int j, int u, int v) {
     }else
         return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-0)+1;
 }
+
+

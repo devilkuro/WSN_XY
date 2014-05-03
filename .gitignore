@@ -8,6 +8,7 @@ src/messages/*_m.cc
 src/messages/*_m.h
 src/Makefile
 *.exe
+.cproject
 
 
 #################

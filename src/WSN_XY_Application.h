@@ -26,16 +26,19 @@ public:
 		, ctrlOut(-1)
 		, ctrlIn(-1)
 		, nodeAddr()
-		, dstAddr()
 		, debug(false), stats(false), trace(false)
 		, isTransmitting(false)
-        ,alpha(0),beta0(0),beta1(0),beta2(0),beta3(0)
-        ,radius(0),dist(0)
-        ,initialRelayEnergy(0),deadRelayEnergy(0)
-        ,i(0),j(0),u(0),v(0),N(0)
-        ,relayNodeSize(0)
-        ,relayNodeEnergy(NULL)
-        ,sensorTimer(NULL)
+        , alpha(0),beta0(0),beta1(0),beta2(0),beta3(0)
+        , radius(0),dist(0)
+        , initialRelayEnergy(0),deadRelayEnergy(0)
+        , initialSensorEnergy(0),deadSensorEnergy(0)
+        , sensorInterval(0),terminateDelay(0)
+        , i(0),j(0),u(0),v(0),N(0)
+        , relayNodeSize(0)
+        , activatedRelayNode(0)
+        , relayNodeEnergy(NULL)
+        , sensorTimer(NULL)
+        , sensorNodeEnergy(0)
 	{}
 
     virtual ~WSN_XY_Application();
@@ -51,6 +54,7 @@ public:
         SEND_PACKET_TIMER = LAST_BASE_APPL_MESSAGE_KIND,
         /** @brief The kind for a packet send by this layer.*/
         WSN_XY_SENSOR_TIMER,
+        WSN_XY_TERMINATE_MSG,
         WSN_XY_PACKET,
         /** @brief Sub classing layers shoudl begin their own kinds at this value.*/
         LAST_WSN_XY_MESSAGE_KIND
@@ -73,7 +77,6 @@ protected:
 
     // module parameters
     LAddress::L3Type nodeAddr;
-    LAddress::L3Type dstAddr;
     bool debug, stats, trace;
     bool isTransmitting;
 
@@ -86,8 +89,8 @@ private:
     //private functions
     void sendSensorData(cMessage* msg);
     void transimitSensorData(cMessage* msg);
-    void consumeSensorEnergy();
-    void consumeTransmitEnergy(double distance);
+    bool consumeSensorEnergy();
+    bool consumeTransmitEnergy(double distance , int bits);
 private:
     //experimental parameters
     double alpha;
@@ -99,12 +102,16 @@ private:
     double deadRelayEnergy; // death threshold of the relay node
     double initialSensorEnergy; // initial energy of the sensor node
     double deadSensorEnergy; // death threshold of the sensor node
+
+    double sensorInterval;
+    double terminateDelay;
     //private members
     int i,j,u,v,N; //level,id in level,section,offset,total level.
     int relayNodeSize; //number of the relay nodes
     double *relayNodeEnergy; // energy array of the relay nodes
     int activatedRelayNode; // the index number of current relay node
     cMessage *sensorTimer; // sensor timer msg
+    double sensorNodeEnergy;
 
     //static id
     static int nodeId; // node id
