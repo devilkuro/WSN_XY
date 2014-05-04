@@ -9,7 +9,8 @@ src/messages/*_m.h
 src/Makefile
 *.exe
 .cproject
-
+Makefile
+Makefile.vc
 
 #################
 ## Eclipse
