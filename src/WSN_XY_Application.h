@@ -1,4 +1,4 @@
-#ifndef TEST_APPLICATION_H
+#ifndef WSN_XY_APPLICATION_H
 #define WSN_XY_APPLICATION_H
 
 #include <vector>
@@ -7,7 +7,7 @@
 #include "MiXiMDefs.h"
 #include "BaseApplLayer.h"
 #include "SimpleAddress.h"
-#include "GlobalStatics.h"
+#include "GlobalStatistics.h"
 
 class  WSN_XY_Application : public BaseApplLayer {
 private:
@@ -33,12 +33,14 @@ public:
         , initialRelayEnergy(0),deadRelayEnergy(0)
         , initialSensorEnergy(0),deadSensorEnergy(0)
         , sensorInterval(0),terminateDelay(0)
+        , statisticsInterval(0)
         , i(0),j(0),u(0),v(0),N(0)
         , relayNodeSize(0)
         , activatedRelayNode(0)
         , relayNodeEnergy(NULL)
         , sensorTimer(NULL)
         , sensorNodeEnergy(0)
+        , statisticsTimer(0)
 	{}
 
     virtual ~WSN_XY_Application();
@@ -105,6 +107,9 @@ private:
 
     double sensorInterval;
     double terminateDelay;
+    int statisticsInterval;
+
+    //statistics
     //private members
     int i,j,u,v,N; //level,id in level,section,offset,total level.
     int relayNodeSize; //number of the relay nodes
@@ -113,10 +118,11 @@ private:
     cMessage *sensorTimer; // sensor timer msg
     double sensorNodeEnergy;
 
+    int statisticsTimer;
     //static id
     static int nodeId; // node id
     static int recordId; // record id
-    static GlobalStatics globalStatics; // the statics class
+    static GlobalStatistics globalStatics; // the statics class
 };
 
 #endif // WSN_XY_APPLICATION_H

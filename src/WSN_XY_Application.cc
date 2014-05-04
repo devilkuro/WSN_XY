@@ -12,7 +12,7 @@ Define_Module(WSN_XY_Application);
 
 int WSN_XY_Application::nodeId = 0;
 int WSN_XY_Application::recordId = 0;
-GlobalStatics WSN_XY_Application::globalStatics = GlobalStatics();
+GlobalStatistics WSN_XY_Application::globalStatics = GlobalStatistics();
 
 static int getHexagonLevel(int id);
 static int getHexagonIndex(int id);
@@ -21,6 +21,10 @@ static int getNextHop(int i,int j,int u,int v);
 
 WSN_XY_Application::~WSN_XY_Application() {
     // TODO Auto-generated method stub
+    if(sensorTimer){
+        cancelAndDelete(sensorTimer);
+    }
+    delete(relayNodeEnergy);
 }
 
 void WSN_XY_Application::initialize(int stage) {
@@ -28,22 +32,46 @@ void WSN_XY_Application::initialize(int stage) {
     BaseApplLayer::initialize(stage);
     if (stage == 0)
     {
-
+        // initialize all experimental parameters in stage 0.
+        alpha = hasPar("alpha")?par("alpha"):2;
+        beta0 = hasPar("beta0")?par("beta0"):2;
+        beta1 = hasPar("beta1")?par("beta1"):2;
+        beta2 = hasPar("beta2")?par("beta2"):2;
+        beta3 = hasPar("beta3")?par("beta3"):2;
+        radius = hasPar("radius")?par("radius"):2;
+        dist = hasPar("dist")?par("dist"):2;
+        initialRelayEnergy = hasPar("initialRelayEnergy")?par("initialRelayEnergy"):2;
+        deadRelayEnergy = hasPar("deadRelayEnergy")?par("deadRelayEnergy"):2;
+        initialSensorEnergy = hasPar("initialSensorEnergy")?par("initialSensorEnergy"):2;
+        deadSensorEnergy = hasPar("deadSensorEnergy")?par("deadSensorEnergy"):2;
+        sensorInterval = hasPar("sensorInterval")?par("sensorInterval"):2;
+        terminateDelay = hasPar("terminateDelay")?par("terminateDelay"):2;
+        statisticsInterval =  hasPar("statisticsInterval")?par("statisticsInterval"):2;
         i=getHexagonLevel(nodeId);
         j=getHexagonIndex(nodeId);
-        v=j%i;
-        u=j/i;
+        if(i!=0){
+            v=j%i;
+            u=j/i;
+        }else{
+            v = 0;
+            j = 0;
+        }
+        nodeAddr = LAddress::L3Type(nodeId);
+        // modify the static members
         nodeId++;
         recordId++;
-        sensorTimer = new cMessage("sensor timer",WSN_XY_SENSOR_TIMER);
-        nodeAddr = LAddress::L3Type(nodeId);
     }else if(stage == 1){
         N=getHexagonLevel(nodeId);
-        relayNodeSize = getRelayNodeSize(i,v,N,1.0);
+        relayNodeSize = getRelayNodeSize(i,v,N,1.0); // FIXME the fourth argument is temporarily set to 1.0
         relayNodeEnergy = new double[relayNodeSize];
         for(int i = 0;i<relayNodeSize;i++){
             relayNodeEnergy[i] = initialRelayEnergy;
         }
+        activatedRelayNode = 0;
+        sensorTimer = new cMessage("sensor timer",WSN_XY_SENSOR_TIMER);
+        scheduleAt(simTime()+sensorInterval,sensorTimer);
+        sensorNodeEnergy = initialSensorEnergy;
+        statisticsTimer = statisticsInterval;
     }
 }
 
@@ -56,6 +84,8 @@ void WSN_XY_Application::handleSelfMsg(cMessage* msg) {
             break;
         case WSN_XY_TERMINATE_MSG:
             endSimulation();
+            cancelAndDelete(msg);
+            break;
         default:
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
             break;
@@ -73,11 +103,18 @@ void WSN_XY_Application::handleLowerMsg(cMessage* msg) {
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
             break;
     }
-
+    if(msg){
+        delete(msg);
+        msg = NULL;
+    }
 }
 
 void WSN_XY_Application::handleLowerControl(cMessage* msg) {
     // TODO do nothing for NOW
+    if(msg){
+        delete(msg);
+        msg = NULL;
+    }
 }
 
 void WSN_XY_Application::finish() {
@@ -93,6 +130,16 @@ void WSN_XY_Application::finish() {
 void WSN_XY_Application::sendSensorData(cMessage* msg) {
     // TODO Auto-generated method stub
     if(nodeId!=0&&consumeSensorEnergy()){
+        if(--statisticsTimer<=0){
+            globalStatics.record("sensor node remainder energy: i,j,u,v,energy",
+                    5,i,j,u,v,sensorNodeEnergy);
+            globalStatics.record("activated relay node remainder energy: i,j,u,v,energy",
+                    5,i,j,u,v,relayNodeEnergy[activatedRelayNode]);
+            for(int loop = 0; loop<relayNodeSize;loop++){
+                globalStatics.record("relay node remainder energy: i,j,u,v,n,energy",
+                        6,i,j,u,v,loop,relayNodeEnergy[loop]);
+            }
+        }
         WSN_XY_ApplPkt *pkt = new WSN_XY_ApplPkt("sensor energy", WSN_XY_PACKET);
         LAddress::L3Type dstAddr = LAddress::L3Type(getNextHop(i,j,u,v));
         pkt->setI(i);

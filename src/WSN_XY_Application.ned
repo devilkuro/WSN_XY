@@ -26,11 +26,13 @@ simple WSN_XY_Application like IBaseApplLayer
         bool coreDebug = default(false); //debug switch for base class (TestApplLayer)
     	bool debug      = default(false); // debug switch
     	int headerLength @unit("bit"); // length of the application message header (in bits)
-    	double sensorPower @unit("J");
-    	double repeaterPower @unit("J");
-    	
-    	double deadThreshold @unit("J");
-    	
+    	double initialRelayEnergy @unit("J") = default(82J);
+    	double deadRelayEnergy @unit("J") = default(0J);
+    	double initialSensorEnergy @unit("J") = default(50J);
+    	double deadSensorEnergy @unit("J") = default(0J);
+    	double sensorInterval @unit("s") = default(30s);
+    	double terminateDelay @unit("s") = default(15s);
+    	int statisticsInterval = default(100);
     gates:
     	input lowerLayerIn; // from network layer
         output lowerLayerOut; // to network layer
