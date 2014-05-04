@@ -3,14 +3,20 @@
 #################
 ./settings
 simulations/.tkenvrc
+simulations/run
+simulations/README
 out/
 src/messages/*_m.cc
 src/messages/*_m.h
 src/Makefile
 *.exe
 .cproject
+.nedfolders
+.oppbuildspec
+.project
 Makefile
 Makefile.vc
+README.md
 
 #################
 ## Eclipse

@@ -113,8 +113,8 @@ private:
     //private members
     int i,j,u,v,N; //level,id in level,section,offset,total level.
     int relayNodeSize; //number of the relay nodes
-    double *relayNodeEnergy; // energy array of the relay nodes
     int activatedRelayNode; // the index number of current relay node
+    double *relayNodeEnergy; // energy array of the relay nodes
     cMessage *sensorTimer; // sensor timer msg
     double sensorNodeEnergy;
 
