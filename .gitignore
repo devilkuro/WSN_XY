@@ -6,6 +6,7 @@ simulations/.tkenvrc
 simulations/run
 simulations/README
 out/
+result/
 src/messages/*_m.cc
 src/messages/*_m.h
 src/Makefile
@@ -17,6 +18,8 @@ src/Makefile
 Makefile
 Makefile.vc
 README.md
+WSN_XY_*.log
+*.log
 
 #################
 ## Eclipse
