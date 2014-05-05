@@ -1,12 +1,13 @@
 /*
  * GlobalStatics.cpp
  *
- *  Created on: 2014Äê4ÔÂ21ÈÕ
+ *  Created on: 1405051354
  *      Author: Fanjing
  */
 
-#include <GlobalStatistics.h>
+#include "GlobalStatistics.h"
 #include <fstream>
+#include <iostream>
 
 GlobalStatistics::GlobalStatistics() {
     // TODO Auto-generated constructor stub
@@ -25,8 +26,10 @@ void GlobalStatistics::record(string name, int size, ...) {
     va_start(vl,size);
     for(int i = 0; i<size; i++){
         val = va_arg(vl,double);
+        std::cout<<" val-"<<i<<":"<<val;
         unit.setData(val,i);
     }
+    std::cout<<std::endl;
     va_end(vl);
     it = globalStatisticsMap.find(name);
     if(it==globalStatisticsMap.end()){

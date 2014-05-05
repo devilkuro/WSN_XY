@@ -32,7 +32,7 @@ simple WSN_XY_Application like IBaseApplLayer
     	double deadSensorEnergy @unit("J") = default(0J);
     	double sensorInterval @unit("s") = default(30s);
     	double terminateDelay @unit("s") = default(15s);
-    	int statisticsInterval = default(100);
+    	int statisticsInterval = default(1);
     gates:
     	input lowerLayerIn; // from network layer
         output lowerLayerOut; // to network layer

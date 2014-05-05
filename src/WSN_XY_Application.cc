@@ -6,7 +6,9 @@
 #include "NetwControlInfo.h"
 #include "WSN_XY_ApplPkt_m.h"
 
+#define NETW_OFFSET 4
 using std::endl;
+
 
 Define_Module(WSN_XY_Application);
 
@@ -56,7 +58,8 @@ void WSN_XY_Application::initialize(int stage) {
             v = 0;
             j = 0;
         }
-        nodeAddr = LAddress::L3Type(nodeId);
+        nodeAddr = LAddress::L3Type(nodeId+NETW_OFFSET);
+        EV<<"the app address: "<<myApplAddr()<<"\nthe node address: "<<nodeAddr<<"\nthe netwl address: "<<getNode()->getId()<<"\nthe mac address: "<<getNode()->getIndex()<<endl;
         // modify the static members
         nodeId++;
         recordId++;
@@ -69,7 +72,7 @@ void WSN_XY_Application::initialize(int stage) {
         }
         activatedRelayNode = 0;
         sensorTimer = new cMessage("sensor timer",WSN_XY_SENSOR_TIMER);
-        scheduleAt(simTime()+sensorInterval,sensorTimer);
+        scheduleAt(simTime()+terminateDelay*(nodeAddr-NETW_OFFSET)/(2*nodeId),sensorTimer);
         sensorNodeEnergy = initialSensorEnergy;
         statisticsTimer = statisticsInterval;
     }
@@ -88,6 +91,7 @@ void WSN_XY_Application::handleSelfMsg(cMessage* msg) {
             break;
         default:
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
+            delete(msg);
             break;
     }
 }
@@ -101,11 +105,8 @@ void WSN_XY_Application::handleLowerMsg(cMessage* msg) {
             break;
         default:
             EV << " Unkown selfmessage! kind: " << msg->getKind() << std::endl;
+            delete(msg);
             break;
-    }
-    if(msg){
-        delete(msg);
-        msg = NULL;
     }
 }
 
@@ -120,7 +121,7 @@ void WSN_XY_Application::handleLowerControl(cMessage* msg) {
 void WSN_XY_Application::finish() {
     // TODO Auto-generated method stub
     stringstream ss;
-    ss<<"WSN_XY_"<<rand()<<".log";
+    ss<<"WSN_XY.log";
     recordId--;
     if(recordId==0){
         globalStatics.output(ss.str());
@@ -129,18 +130,19 @@ void WSN_XY_Application::finish() {
 
 void WSN_XY_Application::sendSensorData(cMessage* msg) {
     // TODO Auto-generated method stub
-    if(nodeId!=0&&consumeSensorEnergy()){
+    if(nodeAddr!=0+NETW_OFFSET&&consumeSensorEnergy()){
         if(--statisticsTimer<=0){
             globalStatics.record("sensor node remainder energy: i,j,u,v,energy",
-                    5,i,j,u,v,sensorNodeEnergy);
+                    5,(double)i,(double)j,(double)u,(double)v,(double)sensorNodeEnergy);
             globalStatics.record("activated relay node remainder energy: i,j,u,v,energy",
-                    5,i,j,u,v,relayNodeEnergy[activatedRelayNode]);
+                    5,(double)i,(double)j,(double)u,(double)v,(double)relayNodeEnergy[activatedRelayNode]);
             for(int loop = 0; loop<relayNodeSize;loop++){
                 globalStatics.record("relay node remainder energy: i,j,u,v,n,energy",
-                        6,i,j,u,v,loop,relayNodeEnergy[loop]);
+                        6,(double)i,(double)j,(double)u,(double)v,(double)loop,(double)relayNodeEnergy[loop]);
             }
         }
-        WSN_XY_ApplPkt *pkt = new WSN_XY_ApplPkt("sensor energy", WSN_XY_PACKET);
+        EV<<"statistics out:"<<i<<","<<j<<","<<u<<","<<v<<endl;
+        WSN_XY_ApplPkt *pkt = new WSN_XY_ApplPkt("sensor data", WSN_XY_PACKET);
         LAddress::L3Type dstAddr = LAddress::L3Type(getNextHop(i,j,u,v));
         pkt->setI(i);
         pkt->setJ(j);
@@ -148,7 +150,14 @@ void WSN_XY_Application::sendSensorData(cMessage* msg) {
         pkt->setV(v);
         pkt->setSrcAddr(nodeAddr);
         pkt->setDestAddr(dstAddr);
+        NetwControlInfo::setControlInfo(pkt,pkt->getDestAddr());
+        EV<<"send sensor data, the destaination is "<<dstAddr<<"."<<endl;
+        EV<<"send sensor data, the source is "<<nodeAddr<<"."<<endl;
         sendDown(pkt);
+        if(msg->isScheduled()){
+            cancelEvent(msg);
+        }
+        scheduleAt(simTime()+sensorInterval,sensorTimer);
     }
 }
 
@@ -156,13 +165,15 @@ void WSN_XY_Application::transimitSensorData(cMessage* msg) {
     // TODO Auto-generated method stub
     WSN_XY_ApplPkt* pkt;
     pkt = static_cast<WSN_XY_ApplPkt *>(msg);
-    if(nodeId!=0&&consumeTransmitEnergy(0,0)){
+    if(nodeAddr!=0+NETW_OFFSET&&consumeTransmitEnergy(0,0)){
         WSN_XY_ApplPkt* pktdup = pkt->dup();
         LAddress::L3Type dstAddr = LAddress::L3Type(getNextHop(i,j,u,v));
         pktdup->setSrcAddr(nodeAddr);
         pktdup->setDestAddr(dstAddr);
+        NetwControlInfo::setControlInfo(pktdup,pktdup->getDestAddr());
         sendDown(pktdup);
     }
+    delete (pkt);
 }
 
 bool WSN_XY_Application::consumeSensorEnergy() {
@@ -215,10 +226,12 @@ inline int getRelayNodeSize(int i,int v, int N, double w) {
 }
 
 inline int getNextHop(int i, int j, int u, int v) {
+    if(i==1)
+        return 0+NETW_OFFSET;
     if(v!=0&&rand()>0.5){
-        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-1)+1;
+        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-1)+1+NETW_OFFSET;
     }else
-        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-0)+1;
+        return 3*(i-1)*((i-1)-1)+(i-1)*u+(v-0)+1+NETW_OFFSET;
 }
 
 

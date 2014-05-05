@@ -27,8 +27,13 @@ void WSN_XY_Mobility::initialize(int stage)
     {
         i=getHexagonLevel(nodeId);
         j=getHexagonIndex(nodeId);
-        v=j%i;
-        u=j/i;
+        if(i==0){
+            v=0;
+            u=0;
+        }else{
+            v=j%i;
+            u=j/i;
+        }
         nodeId++;
         r = par("radius");
         speed = par("speed");
