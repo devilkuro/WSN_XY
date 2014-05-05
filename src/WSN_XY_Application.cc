@@ -134,8 +134,8 @@ void WSN_XY_Application::sendSensorData(cMessage* msg) {
         if(--statisticsTimer<=0){
             globalStatics.record("sensor node remainder energy: i,j,u,v,energy",
                     5,(double)i,(double)j,(double)u,(double)v,(double)sensorNodeEnergy);
-            globalStatics.record("activated relay node remainder energy: i,j,u,v,energy",
-                    5,(double)i,(double)j,(double)u,(double)v,(double)relayNodeEnergy[activatedRelayNode]);
+            globalStatics.record("activated relay node remainder energy: i,j,u,v,n,energy",
+                    6,(double)i,(double)j,(double)u,(double)v,(double)activatedRelayNode,(double)relayNodeEnergy[activatedRelayNode]);
             for(int loop = 0; loop<relayNodeSize;loop++){
                 globalStatics.record("relay node remainder energy: i,j,u,v,n,energy",
                         6,(double)i,(double)j,(double)u,(double)v,(double)loop,(double)relayNodeEnergy[loop]);
@@ -177,24 +177,27 @@ void WSN_XY_Application::transimitSensorData(cMessage* msg) {
 }
 
 bool WSN_XY_Application::consumeSensorEnergy() {
-    if(sensorNodeEnergy -=1.1725/10000>=0)
+    double consumedEnergy = 1.1725/10000;
+    if(sensorNodeEnergy >consumedEnergy+deadSensorEnergy){
+        sensorNodeEnergy-=consumedEnergy;
         return true;
+    }
     else{
-        scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg", WSN_XY_TERMINATE_MSG));
+        scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg: sensor", WSN_XY_TERMINATE_MSG));
         return false;
     }
 }
 
 bool WSN_XY_Application::consumeTransmitEnergy(double distance , int bits) {
     double consumedEnergy = 1.9225/10000;
-    if(relayNodeEnergy[activatedRelayNode]>consumedEnergy){
+    if(relayNodeEnergy[activatedRelayNode]>consumedEnergy+deadRelayEnergy){
         relayNodeEnergy[activatedRelayNode]-=consumedEnergy;
     }else{
         activatedRelayNode++;
         if(activatedRelayNode<relayNodeSize){
             relayNodeEnergy[activatedRelayNode]-=consumedEnergy;
         }else{
-            scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg", WSN_XY_TERMINATE_MSG));
+            scheduleAt(simTime()+terminateDelay, new cMessage("terminate msg: transimit", WSN_XY_TERMINATE_MSG));
             return false;
         }
     }

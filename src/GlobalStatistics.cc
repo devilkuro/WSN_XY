@@ -15,19 +15,26 @@ GlobalStatistics::GlobalStatistics() {
 
 GlobalStatistics::~GlobalStatistics() {
     // TODO Auto-generated destructor stub
+    for (GlobalStatisticsMap::iterator it = globalStatisticsMap.begin();
+            it != globalStatisticsMap.end(); it++) {
+        for (GlobalStatisticsList::iterator lit = it->second.begin();
+                lit != it->second.end(); lit++) {
+            delete (&lit);
+        }
+    }
 }
 
 void GlobalStatistics::record(string name, int size, ...) {
     // TODO Auto-generated destructor stub
     GlobalStatisticsMap::iterator it;
-    GlobalStatisticsUnit unit = GlobalStatisticsUnit(size);
+    GlobalStatisticsUnit *unit = new GlobalStatisticsUnit(size);
     double val;
     va_list vl;
     va_start(vl,size);
     for(int i = 0; i<size; i++){
         val = va_arg(vl,double);
         std::cout<<" val-"<<i<<":"<<val;
-        unit.setData(val,i);
+        unit->setData(val,i);
     }
     std::cout<<std::endl;
     va_end(vl);
@@ -36,7 +43,7 @@ void GlobalStatistics::record(string name, int size, ...) {
         GlobalStatisticsList list;
         globalStatisticsMap.insert(std::pair<string,GlobalStatisticsList>(name,list));
     }
-    globalStatisticsMap[name].push_back(unit);
+    globalStatisticsMap[name].push_back(*unit);
 }
 
 void GlobalStatistics::output(string name) {
@@ -46,6 +53,7 @@ void GlobalStatistics::output(string name) {
         fs<<it->first<<std::endl;
         for(GlobalStatisticsList::iterator lit = it->second.begin();lit!=it->second.end();lit++){
             fs<<lit->toString()<<std::endl;
+            std::cout<<lit->toString()<<std::endl;
         }
     }
     fs.close();
