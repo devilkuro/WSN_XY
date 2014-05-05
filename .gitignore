@@ -6,7 +6,7 @@ simulations/.tkenvrc
 simulations/run
 simulations/README
 out/
-result/
+results/
 src/messages/*_m.cc
 src/messages/*_m.h
 src/Makefile
