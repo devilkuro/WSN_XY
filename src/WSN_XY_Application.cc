@@ -120,10 +120,26 @@ void WSN_XY_Application::handleLowerControl(cMessage* msg) {
 
 void WSN_XY_Application::finish() {
     // TODO Auto-generated method stub
-    stringstream ss;
-    ss<<"WSN_XY.log";
+    {
+        globalStatics.record("finish::sensor node remainder energy: i,j,u,v,energy", 5,
+                (double) i, (double) j, (double) u, (double) v,
+                (double) sensorNodeEnergy);
+        globalStatics.record(
+                "finish::activated relay node remainder energy: i,j,u,v,n,energy", 6,
+                (double) i, (double) j, (double) u, (double) v,
+                (double) activatedRelayNode,
+                (double) relayNodeEnergy[activatedRelayNode]);
+        for (int loop = 0; loop < relayNodeSize; loop++) {
+            globalStatics.record(
+                    "finish::relay node remainder energy: i,j,u,v,n,energy", 6,
+                    (double) i, (double) j, (double) u, (double) v,
+                    (double) loop, (double) relayNodeEnergy[loop]);
+        }
+    }
     recordId--;
     if(recordId==0){
+        stringstream ss;
+        ss<<"WSN_XY.log";
         globalStatics.output(ss.str());
     }
 }
@@ -140,6 +156,7 @@ void WSN_XY_Application::sendSensorData(cMessage* msg) {
                 globalStatics.record("relay node remainder energy: i,j,u,v,n,energy",
                         6,(double)i,(double)j,(double)u,(double)v,(double)loop,(double)relayNodeEnergy[loop]);
             }
+            statisticsTimer=statisticsInterval;
         }
         EV<<"statistics out:"<<i<<","<<j<<","<<u<<","<<v<<endl;
         WSN_XY_ApplPkt *pkt = new WSN_XY_ApplPkt("sensor data", WSN_XY_PACKET);

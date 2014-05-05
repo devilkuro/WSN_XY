@@ -33,10 +33,8 @@ void GlobalStatistics::record(string name, int size, ...) {
     va_start(vl,size);
     for(int i = 0; i<size; i++){
         val = va_arg(vl,double);
-        std::cout<<" val-"<<i<<":"<<val;
         unit->setData(val,i);
     }
-    std::cout<<std::endl;
     va_end(vl);
     it = globalStatisticsMap.find(name);
     if(it==globalStatisticsMap.end()){
@@ -53,7 +51,6 @@ void GlobalStatistics::output(string name) {
         fs<<it->first<<std::endl;
         for(GlobalStatisticsList::iterator lit = it->second.begin();lit!=it->second.end();lit++){
             fs<<lit->toString()<<std::endl;
-            std::cout<<lit->toString()<<std::endl;
         }
     }
     fs.close();
