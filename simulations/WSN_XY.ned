@@ -47,7 +47,7 @@ network WSN_XY extends BaseNetwork
 
     submodules:
         host[numHosts]: Host80211 {
-            @display("p=137,95");
+            @display("p=137,95;i=block/circle_vs;b=0,0");
         }
 
     connections allowunconnected:
